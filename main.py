@@ -1,5 +1,4 @@
 import time
-from functools import reduce
 from typing import Dict
 
 from field import Field
@@ -14,7 +13,8 @@ from player import Player
 # player1=Player(name="yaroslav", field=f)
 # player2 = Player(name="lera")
 # print(player2.launch(Point(1,4), player1))
-# идея: использовать стейт для точки, стейт для корабля, обсервер для наблюдения за изменениями , декоратор для создания точки со стейтом, класс игры как синглтон
+# идея: использовать стейт для точки, стейт для корабля, обсервер для наблюдения за изменениями , декоратор для
+# создания точки со стейтом, класс игры как синглтон
 # для сохранения данных использовать историю, а ввод комманд обрабатывать шаблоном "комманда"
 # Видимость полей контролируется с помощью прокси
 
@@ -91,7 +91,7 @@ def get_subtitle_panels(dims):
         dims["subtitle"]["width"])
     subtitle2_panel = curses.panel.new_panel(subtitle2_window)
     subtitle2_window.addstr("P2")
-    return (subtitle1_panel, subtitle2_panel)
+    return subtitle1_panel, subtitle2_panel
 
 
 def get_player_panels(dims, max_height, max_width):
@@ -115,7 +115,7 @@ def get_player_panels(dims, max_height, max_width):
 
     init_player_window(p1_window, max_height, max_width)
     init_player_window(p2_window, max_height, max_width)
-    return (p1_window, p1_panel, p2_window, p2_panel)
+    return p1_window, p1_panel, p2_window, p2_panel
 
 
 def init_player_window(window, max_height: int, max_width: int):
@@ -164,16 +164,16 @@ def get_command_panel(dims):
     return (cmd_window, cmd_panel)
 
 
-def game_loop(command_window, history_window):
+def game_loop(dims, command_window, history_window, player1_window, player2_window):
     player1_turn = True
     while True:
         command_window.move(2, 1)
-        key = command_window.getstr()
-        if len(key) == 0:
+        binput = command_window.getstr()
+        if len(binput) == 0:
             # screen.clear()
             # screen.refresh()
             break
-        if not validate_command(key.decode("utf-8")):
+        if not validate_command(binput.decode("utf-8")):
             command_window.move(2, 1)
             command_window.addstr("Input is incorrect!")
             command_window.refresh()
@@ -182,7 +182,12 @@ def game_loop(command_window, history_window):
             command_window.clrtoeol()
             continue
         command_window.move(2, 1)
-        history_window.addstr(("P1: " if player1_turn else "P2: ") + key.decode("utf-8") + "\n")
+        history_window.addstr(("P1: " if player1_turn else "P2: ") + binput.decode("utf-8") + "\n")
+        curplayer_window = player2_window if player1_turn else player1_window
+        command = binput.decode("utf-8")
+        strike_y = ord(command[0].lower()) - ord('a') + dims["player"]["height"] // 2 - 5
+        strike_x = int(command[1]) + dims["player"]["width"] // 2 - 5
+        curplayer_window.addstr(strike_y, strike_x, "K")
 
         curses.panel.update_panels()
         curses.doupdate()
@@ -191,16 +196,28 @@ def game_loop(command_window, history_window):
         command_window.addstr(1, 1, "Player " + ("1" if player1_turn else "2") + " turn:")
 
 
-def setup_loop(screen):
+def belongs_to_player(player_num: int, x: int, y: int) -> bool:
+    if player_num == 1:
+        pass
+    return True
+
+
+def setup_loop(screen, max_y, max_x, min_y, min_x):
+    ship_size = 5
+    ship_put = 0
     while True:
         e = screen.getch()
         if e == ord("q"):
             break
         if e == curses.KEY_MOUSE:
             _, mx, my, _, _ = curses.getmouse()
-            y, x = screen.getyx()
-            screen.addstr(my, mx, "x")
+            if min_x <= mx <= max_x and min_y <= my <= max_y:
+                screen.addstr(my, mx, "x")
             # player_window.refresh()
+
+
+def check_ship(length: int) -> bool:
+    return False
 
 
 def main(screen):
@@ -226,8 +243,21 @@ def main(screen):
     curses.panel.update_panels()
     curses.doupdate()
 
-    setup_loop(screen)
-    setup_loop(screen)
+    setup_loop(
+        screen,
+        dims["player"]["height"] // 2 + 6,
+        dims["player"]["width"] // 2 + 4,
+        dims["player"]["height"] // 2 - 3,
+        dims["player"]["width"] // 2 - 5
+    )
+
+    setup_loop(
+        screen,
+        dims["player"]["height"] // 2 + 6,
+        dims["player"]["width"] // 2 * 3 + 5,
+        dims["player"]["height"] // 2 - 3,
+        dims["player"]["width"] // 2 * 3 - 4
+    )
 
     curses.mousemask(False)
 
@@ -245,7 +275,7 @@ def main(screen):
     curses.echo()
     curses.curs_set(True)
 
-    game_loop(cmd_window, history_window)
+    game_loop(dims, cmd_window, history_window, player1_window, player2_window)
 
 
 try:
