@@ -20,11 +20,14 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="368">
-              <caret line="201" column="4" selection-start-line="201" selection-start-column="4" selection-end-line="201" selection-end-column="4" />
+            <state relative-caret-position="152">
+              <caret line="201" column="64" selection-start-line="201" selection-start-column="64" selection-end-line="201" selection-end-column="64" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <element signature="e#969#1661#0" />
+                <element signature="e#2975#3416#0" />
+                <element signature="e#4794#5296#0" />
+                <element signature="e#5346#5912#0" />
+                <element signature="e#4891#5771#0" />
               </folding>
             </state>
           </provider>
@@ -98,7 +101,6 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.import" />
-    <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -163,7 +165,21 @@
       <option name="project" value="LOCAL" />
       <updated>1524057823504</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="a bit of refactoring">
+      <created>1524065211242</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1524065211242</updated>
+    </task>
+    <task id="LOCAL-00004" summary="added setup stage and keyboard interrupt handler">
+      <created>1524066989043</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1524066989044</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -180,6 +196,7 @@
       <window_info content_ui="combo" id="Project" order="0" weight="0.22222222" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="3" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32900944" />
       <window_info anchor="right" id="SciView" order="3" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
@@ -190,7 +207,6 @@
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -202,7 +218,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added constants dict" />
     <MESSAGE value="added command check" />
-    <option name="LAST_COMMIT_MESSAGE" value="added command check" />
+    <MESSAGE value="a bit of refactoring" />
+    <MESSAGE value="added setup stage and keyboard interrupt handler" />
+    <option name="LAST_COMMIT_MESSAGE" value="added setup stage and keyboard interrupt handler" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/main.py">
@@ -211,7 +229,10 @@
           <caret line="48" selection-start-line="48" selection-end-line="48" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#969#1661#0" />
+            <element signature="e#2975#3416#0" />
+            <element signature="e#4794#5296#0" />
+            <element signature="e#5346#5912#0" />
+            <element signature="e#4891#5771#0" />
           </folding>
         </state>
       </provider>
@@ -229,7 +250,10 @@
           <caret line="49" selection-start-line="49" selection-end-line="49" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#969#1661#0" />
+            <element signature="e#2975#3416#0" />
+            <element signature="e#4794#5296#0" />
+            <element signature="e#5346#5912#0" />
+            <element signature="e#4891#5771#0" />
           </folding>
         </state>
       </provider>
@@ -247,7 +271,10 @@
           <caret line="37" selection-start-line="37" selection-end-line="37" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#969#1661#0" />
+            <element signature="e#2975#3416#0" />
+            <element signature="e#4794#5296#0" />
+            <element signature="e#5346#5912#0" />
+            <element signature="e#4891#5771#0" />
           </folding>
         </state>
       </provider>
@@ -265,7 +292,10 @@
           <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#969#1661#0" />
+            <element signature="e#2975#3416#0" />
+            <element signature="e#4794#5296#0" />
+            <element signature="e#5346#5912#0" />
+            <element signature="e#4891#5771#0" />
           </folding>
         </state>
       </provider>
@@ -283,7 +313,10 @@
           <caret line="18" lean-forward="true" selection-start-line="18" selection-end-line="18" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#969#1661#0" />
+            <element signature="e#2975#3416#0" />
+            <element signature="e#4794#5296#0" />
+            <element signature="e#5346#5912#0" />
+            <element signature="e#4891#5771#0" />
           </folding>
         </state>
       </provider>
@@ -301,7 +334,10 @@
           <caret line="21" column="40" selection-start-line="21" selection-start-column="40" selection-end-line="21" selection-end-column="40" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#969#1661#0" />
+            <element signature="e#2975#3416#0" />
+            <element signature="e#4794#5296#0" />
+            <element signature="e#5346#5912#0" />
+            <element signature="e#4891#5771#0" />
           </folding>
         </state>
       </provider>
@@ -318,7 +354,10 @@
         <state>
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#969#1661#0" />
+            <element signature="e#2975#3416#0" />
+            <element signature="e#4794#5296#0" />
+            <element signature="e#5346#5912#0" />
+            <element signature="e#4891#5771#0" />
           </folding>
         </state>
       </provider>
@@ -351,13 +390,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../../../Caches/PyCharm2018.1/python_stubs/-1199943128/_curses.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="15" column="16" lean-forward="true" selection-start-line="15" selection-start-column="16" selection-end-line="15" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/curses/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="944">
@@ -368,13 +400,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../../../../Caches/PyCharm2018.1/python_stubs/-1199943128/_curses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="303" column="43" selection-start-line="303" selection-start-column="43" selection-end-line="303" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../../Caches/PyCharm2018.1/python_stubs/-1199943128/builtins.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="273">
+          <caret line="3542" column="6" selection-start-line="3542" selection-start-column="6" selection-end-line="3542" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="201" column="4" selection-start-line="201" selection-start-column="4" selection-end-line="201" selection-end-column="4" />
+        <state relative-caret-position="152">
+          <caret line="201" column="64" selection-start-line="201" selection-start-column="64" selection-end-line="201" selection-end-column="64" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#969#1661#0" />
+            <element signature="e#2975#3416#0" />
+            <element signature="e#4794#5296#0" />
+            <element signature="e#5346#5912#0" />
+            <element signature="e#4891#5771#0" />
           </folding>
         </state>
       </provider>

@@ -165,7 +165,6 @@ def get_command_panel(dims):
 
 
 def game_loop(command_window, history_window):
-    curses.echo()
     player1_turn = True
     while True:
         command_window.move(2, 1)
@@ -192,17 +191,16 @@ def game_loop(command_window, history_window):
         command_window.addstr(1, 1, "Player " + ("1" if player1_turn else "2") + " turn:")
 
 
-def setup_loop(player_window):
-    curses.mousemask(True)
-    curses.noecho()
+def setup_loop(screen):
     while True:
-        e = player_window.getch()
+        e = screen.getch()
         if e == ord("q"):
             break
         if e == curses.KEY_MOUSE:
-            _, my, mx, _, _ = curses.getmouse()
-            y, x = player_window.getyx()
-            player_window.addstr(y, x, player_window.instr(my, mx, "x"))
+            _, mx, my, _, _ = curses.getmouse()
+            y, x = screen.getyx()
+            screen.addstr(my, mx, "x")
+            # player_window.refresh()
 
 
 def main(screen):
@@ -221,23 +219,19 @@ def main(screen):
     # Player windows
     player1_window, player1_panel, player2_window, player2_panel = get_player_panels(dims, max_height, max_width)
 
-    setup_loop(player1_window)
-    setup_loop(player2_window)
+    curses.mousemask(True)
+    curses.curs_set(False)
+    curses.noecho()
+
+    curses.panel.update_panels()
+    curses.doupdate()
+
+    setup_loop(screen)
+    setup_loop(screen)
 
     curses.mousemask(False)
-    screen.clear()
-    screen.refresh()
 
     # Game
-
-    # Title window
-    title_panel = get_title_panel(dims)
-
-    # Subtitle windows
-    subtitle1_panel, subtitle2_panel = get_subtitle_panels(dims)
-
-    # Player windows
-    _, player1_panel, _, player2_panel = get_player_panels(dims, max_height, max_width)
 
     # History window
     history_window, history_panel = get_history_panel(dims)
@@ -247,6 +241,9 @@ def main(screen):
 
     curses.panel.update_panels()
     curses.doupdate()
+
+    curses.echo()
+    curses.curs_set(True)
 
     game_loop(cmd_window, history_window)
 
