@@ -62,12 +62,12 @@ def dims_for_game(max_height: int, max_width: int) -> Dict[str, Dict[str, int]]:
     return dims
 
 
-def get_title_panel(lines: int, cols: int, y: int, x: int):
+def get_title_panel(dims):
     title_window = curses.newwin(
-        lines,
-        cols,
-        y,
-        x
+        dims["title"]["height"],
+        dims["title"]["width"],
+        0,
+        0
     )
     title_panel = curses.panel.new_panel(title_window)
     title_window.addstr("The Battleship Game", curses.A_BOLD and curses.A_BLINK)
@@ -75,50 +75,50 @@ def get_title_panel(lines: int, cols: int, y: int, x: int):
 
 
 def get_subtitle_panels(dims):
-    sub_title_window1 = curses.newwin(
+    subtitle1_window = curses.newwin(
         dims["subtitle"]["height"],
         dims["subtitle"]["width"],
         dims["title"]["height"],
         0
     )
-    sub_title_panel1 = curses.panel.new_panel(sub_title_window1)
-    sub_title_window1.addstr("P1")
+    subtitle1_panel = curses.panel.new_panel(subtitle1_window)
+    subtitle1_window.addstr("P1")
 
-    sub_title_window2 = curses.newwin(
+    subtitle2_window = curses.newwin(
         dims["subtitle"]["height"],
         dims["subtitle"]["width"],
         dims["title"]["height"],
         dims["subtitle"]["width"])
-    sub_title_panel2 = curses.panel.new_panel(sub_title_window2)
-    sub_title_window2.addstr("P2")
-    return (sub_title_panel1, sub_title_panel2)
+    subtitle2_panel = curses.panel.new_panel(subtitle2_window)
+    subtitle2_window.addstr("P2")
+    return (subtitle1_panel, subtitle2_panel)
 
 
 def get_player_panels(dims, max_height, max_width):
-    subwindow1 = curses.newwin(
+    p1_window = curses.newwin(
         dims["player"]["height"],
         dims["player"]["width"],
         dims["title"]["height"] + dims["subtitle"]["height"],
         0
     )
-    subwindow1.box()
-    panel1 = curses.panel.new_panel(subwindow1)
+    p1_window.box()
+    p1_panel = curses.panel.new_panel(p1_window)
 
-    subwindow2 = curses.newwin(
+    p2_window = curses.newwin(
         dims["player"]["height"],
         dims["player"]["width"],
         dims["title"]["height"] + dims["subtitle"]["height"],
         dims["player"]["width"]
     )
-    subwindow2.box()
-    panel2 = curses.panel.new_panel(subwindow2)
+    p2_window.box()
+    p2_panel = curses.panel.new_panel(p2_window)
 
-    fill_player_window(subwindow1, max_height, max_width)
-    fill_player_window(subwindow2, max_height, max_width)
-    return (panel1, panel2)
+    init_player_window(p1_window, max_height, max_width)
+    init_player_window(p2_window, max_height, max_width)
+    return (p1_window, p1_panel, p2_window, p2_panel)
 
 
-def fill_player_window(window, max_height: int, max_width: int):
+def init_player_window(window, max_height: int, max_width: int):
     for i in range(max_width // 4 - 5, max_width // 4 + 5):
         for j in range(max_height // 4 - 5, max_height // 4 + 5):
             window.addstr(j, i, "-")
@@ -150,22 +150,22 @@ def get_history_panel(dims):
 
 
 def get_command_panel(dims):
-    command_window = curses.newwin(
+    cmd_window = curses.newwin(
         dims["command"]["height"],
         dims["command"]["width"],
         dims["title"]["height"] + dims["subtitle"]["height"] + dims["title"]["height"] + dims["player"]["height"] +
         dims["history"]["height"],
         0
     )
-    command_window.box()
-    panel3 = curses.panel.new_panel(command_window)
+    cmd_window.box()
+    cmd_panel = curses.panel.new_panel(cmd_window)
 
-    command_window.addstr(1, 1, "Player 1 turn:")
-    command_window.keypad(True)
-    return (command_window, panel3)
+    cmd_window.addstr(1, 1, "Player 1 turn:")
+    return (cmd_window, cmd_panel)
 
 
-def main_loop(command_window, history_window):
+def game_loop(command_window, history_window):
+    curses.echo()
     player1_turn = True
     while True:
         command_window.move(2, 1)
@@ -192,36 +192,66 @@ def main_loop(command_window, history_window):
         command_window.addstr(1, 1, "Player " + ("1" if player1_turn else "2") + " turn:")
 
 
-def main(screen):
+def setup_loop(player_window):
     curses.mousemask(True)
-    curses.echo()
+    curses.noecho()
+    while True:
+        e = player_window.getch()
+        if e == ord("q"):
+            break
+        if e == curses.KEY_MOUSE:
+            _, my, mx, _, _ = curses.getmouse()
+            y, x = player_window.getyx()
+            player_window.addstr(y, x, player_window.instr(my, mx, "x"))
 
+
+def main(screen):
     max_height, max_width = screen.getmaxyx()
-
-
-
 
     dims = dims_for_game(max_height, max_width)
 
+    # Setup
+
     # Title window
-    title_panel = get_title_panel(dims["title"]["height"], dims["title"]["width"], 0, 0)
+    title_panel = get_title_panel(dims)
 
     # Subtitle windows
-    sub_title_panel1, sub_title_panel2 = get_subtitle_panels(dims)
+    subtitle1_panel, subtitle2_panel = get_subtitle_panels(dims)
 
     # Player windows
-    panel1, panel2 = get_player_panels(dims, max_height, max_width)
+    player1_window, player1_panel, player2_window, player2_panel = get_player_panels(dims, max_height, max_width)
+
+    setup_loop(player1_window)
+    setup_loop(player2_window)
+
+    curses.mousemask(False)
+    screen.clear()
+    screen.refresh()
+
+    # Game
+
+    # Title window
+    title_panel = get_title_panel(dims)
+
+    # Subtitle windows
+    subtitle1_panel, subtitle2_panel = get_subtitle_panels(dims)
+
+    # Player windows
+    _, player1_panel, _, player2_panel = get_player_panels(dims, max_height, max_width)
 
     # History window
     history_window, history_panel = get_history_panel(dims)
 
     # Command window
-    command_window, command_panel = get_command_panel(dims)
+    cmd_window, cmd_panel = get_command_panel(dims)
 
     curses.panel.update_panels()
     curses.doupdate()
 
-    main_loop(command_window, history_window)
+    game_loop(cmd_window, history_window)
 
 
-curses.wrapper(main)
+try:
+    curses.wrapper(main)
+except KeyboardInterrupt as e:
+    print("Exit")
