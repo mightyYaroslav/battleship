@@ -25,7 +25,7 @@ import signal
 
 
 def validate_command(cmd: str) -> bool:
-    return isinstance(cmd, str) and len(cmd) == 2 and ord('a') <= ord(cmd[0]) <= ord('j') and cmd[1].isnumeric()
+    return isinstance(cmd, str) and len(cmd) == 2 and ord('a') <= ord(cmd[0].lower()) <= ord('j') and cmd[1].isnumeric()
 
 
 def dims_for_game(max_height: int, max_width: int) -> Dict[str, Dict[str, int]]:
@@ -71,7 +71,7 @@ def get_title_panel(dims):
     )
     title_panel = curses.panel.new_panel(title_window)
     title_window.addstr("The Battleship Game", curses.A_BOLD and curses.A_BLINK)
-    return title_panel
+    return title_window, title_panel
 
 
 def get_subtitle_panels(dims):
@@ -204,16 +204,50 @@ def belongs_to_player(player_num: int, x: int, y: int) -> bool:
 
 def setup_loop(screen, max_y, max_x, min_y, min_x):
     ship_size = 5
-    ship_put = 0
+    i = 0
+    f = Field(10, 10)
+    ship_pts = []
+    vert = True
     while True:
+
+        if len(ship_pts) == ship_size:
+            xs = [pt.x for pt in ship_pts]
+            ys = [pt.y for pt in ship_pts]
+            f.add_ship(Ship(Point(min(xs), min(ys)), Point(max(xs), max(ys))))
+            ship_pts = []
+            i += 1
+            if i == 5:
+                break
+            elif i == 5 + 1 - ship_size:
+                ship_size -= 1
+                i = 0
+
         e = screen.getch()
-        if e == ord("q"):
+        if e == ord('q'):
             break
+
         if e == curses.KEY_MOUSE:
             _, mx, my, _, _ = curses.getmouse()
             if min_x <= mx <= max_x and min_y <= my <= max_y:
-                screen.addstr(my, mx, "x")
-            # player_window.refresh()
+                if len(ship_pts) == 0:
+                    screen.addstr(my, mx, "x")
+                    ship_pts.append(Point(int(mx), int(my)))
+
+                for pt in ship_pts:
+                    if len(ship_pts) == 1 and (
+                            (abs(pt.x - mx) == 1 and pt.y == my) or (abs(pt.y - my) == 1 and pt.x == mx)):
+                        vert = (abs(pt.x - mx) == 1 and pt.y == my)
+                        screen.addstr(my, mx, "x")
+                        ship_pts.append(Point(int(mx), int(my)))
+                        break
+
+                    elif (vert and (abs(pt.x - mx) == 1 and pt.y == my)) or \
+                            (not vert and (abs(pt.y - my) == 1 and pt.x == mx)):
+                        screen.addstr(my, mx, "x")
+                        ship_pts.append(Point(int(mx), int(my)))
+                        break
+
+    return f
 
 
 def check_ship(length: int) -> bool:
@@ -228,7 +262,7 @@ def main(screen):
     # Setup
 
     # Title window
-    title_panel = get_title_panel(dims)
+    title_window, title_panel = get_title_panel(dims)
 
     # Subtitle windows
     subtitle1_panel, subtitle2_panel = get_subtitle_panels(dims)
@@ -243,7 +277,7 @@ def main(screen):
     curses.panel.update_panels()
     curses.doupdate()
 
-    setup_loop(
+    p1_field = setup_loop(
         screen,
         dims["player"]["height"] // 2 + 6,
         dims["player"]["width"] // 2 + 4,
@@ -251,7 +285,12 @@ def main(screen):
         dims["player"]["width"] // 2 - 5
     )
 
-    setup_loop(
+    # player1_window.clear()
+    # player1_window.refresh()
+    init_player_window(player1_window, max_height, max_width)
+    player1_window.refresh()
+
+    p2_field = setup_loop(
         screen,
         dims["player"]["height"] // 2 + 6,
         dims["player"]["width"] // 2 * 3 + 5,
