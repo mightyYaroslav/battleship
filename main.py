@@ -164,14 +164,13 @@ def get_command_panel(dims):
     return (cmd_window, cmd_panel)
 
 
-def game_loop(dims, command_window, history_window, player1_window, player2_window):
+def game_loop(dims, command_window, history_window, player1_window, player2_window, p1_field, p2_field, max_width,
+              max_height):
     player1_turn = True
     while True:
         command_window.move(2, 1)
         binput = command_window.getstr()
         if len(binput) == 0:
-            # screen.clear()
-            # screen.refresh()
             break
         if not validate_command(binput.decode("utf-8")):
             command_window.move(2, 1)
@@ -183,11 +182,29 @@ def game_loop(dims, command_window, history_window, player1_window, player2_wind
             continue
         command_window.move(2, 1)
         history_window.addstr(("P1: " if player1_turn else "P2: ") + binput.decode("utf-8") + "\n")
-        curplayer_window = player2_window if player1_turn else player1_window
+        if player1_turn:
+            player_window = player1_window
+            enemy_window = player2_window
+            player_field = p1_field
+            enemy_field = p2_field
+        else:
+            player_window = player2_window
+            enemy_window = player1_window
+            player_field = p2_field
+            enemy_field = p1_field
+
+        # player_field.put_ships(player_window)
+        # player_field.add_coordinates(player_window, max_width, max_height)
+        # player_window.refresh()
+        #
+        # enemy_field.put_empty(enemy_window, max_width, max_height)
+        # enemy_field.add_coordinates(enemy_window, max_width, max_height)
+        # enemy_window.refresh()
+
         command = binput.decode("utf-8")
         strike_y = ord(command[0].lower()) - ord('a') + dims["player"]["height"] // 2 - 5
         strike_x = int(command[1]) + dims["player"]["width"] // 2 - 5
-        curplayer_window.addstr(strike_y, strike_x, "K")
+        enemy_window.addstr(strike_y, strike_x, "K")
 
         curses.panel.update_panels()
         curses.doupdate()
@@ -287,7 +304,8 @@ def main(screen):
 
     # player1_window.clear()
     # player1_window.refresh()
-    init_player_window(player1_window, max_height, max_width)
+    p1_field.put_empty(player1_window, max_width, max_height)
+    p1_field.add_coordinates(player1_window, max_width, max_height)
     player1_window.refresh()
 
     p2_field = setup_loop(
@@ -297,6 +315,10 @@ def main(screen):
         dims["player"]["height"] // 2 - 3,
         dims["player"]["width"] // 2 * 3 - 4
     )
+
+    p2_field.put_empty(player2_window, max_width, max_height)
+    p2_field.add_coordinates(player2_window, max_width, max_height)
+    player2_window.refresh()
 
     curses.mousemask(False)
 
@@ -314,7 +336,8 @@ def main(screen):
     curses.echo()
     curses.curs_set(True)
 
-    game_loop(dims, cmd_window, history_window, player1_window, player2_window)
+    game_loop(dims, cmd_window, history_window, player1_window, player2_window, p1_field, p2_field, max_width,
+              max_height)
 
 
 try:

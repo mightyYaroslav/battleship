@@ -19,13 +19,23 @@ class Field:
         self.ships.remove(s)
         return True
 
-    def __str__(self):
-        strs = [[self.symbol for _ in range(self.cols)] for _ in range(self.rows)]
+    def add_coordinates(self, window, max_width, max_height):
+        for j in range(max_height // 4 - 5, max_height // 4 + 5):
+            window.addstr(j, max_width // 4 - 6, chr(ord('A') + j - max_height // 4 + 5))
+
+        for i in range(max_width // 4 - 5, max_width // 4 + 5):
+            window.addstr(max_height // 4 - 6, i, str(i - max_width // 4 + 5))
+
+    def put_empty(self, window, max_width, max_height):
+        for i in range(max_width // 4 - 5, max_width // 4 + 5):
+            for j in range(max_height // 4 - 5, max_height // 4 + 5):
+                window.addstr(j, i, "-")
+
+    def put_ships(self, window):
         for ship in self.ships:
             if ship.start.x == ship.end.x:
                 for j in range(ship.start.y, ship.end.y):
-                    strs[ship.start.x][j] = ship.symbol
-                else:
-                    for i in range(ship.start.x, ship.end.x):
-                        strs[i][ship.start.y] = ship.symbol
-        return "\n".join(["".join(s) for s in strs])
+                    window.addstr(j, ship.start.x, ship.symbol)
+            else:
+                for i in range(ship.start.x, ship.end.x):
+                    window.addstr(ship.start.y, i, ship.symbol)
