@@ -204,7 +204,10 @@ def game_loop(dims, command_window, history_window, player1_window, player2_wind
         command = binput.decode("utf-8")
         strike_y = ord(command[0].lower()) - ord('a') + dims["player"]["height"] // 2 - 5
         strike_x = int(command[1]) + dims["player"]["width"] // 2 - 5
-        enemy_window.addstr(strike_y, strike_x, "K")
+        # TODO Check Field coords!
+        gotcha = enemy_field.launch(strike_x, strike_y)
+
+        enemy_window.addstr(strike_y, strike_x, "K" if gotcha else "M")
 
         curses.panel.update_panels()
         curses.doupdate()
@@ -220,7 +223,7 @@ def belongs_to_player(player_num: int, x: int, y: int) -> bool:
 
 
 def setup_loop(screen, max_y, max_x, min_y, min_x):
-    ship_size = 5
+    ship_size = 1
     i = 0
     f = Field(10, 10)
     ship_pts = []

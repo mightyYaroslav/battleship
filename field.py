@@ -1,4 +1,5 @@
 from ship import Ship
+from point import Point
 
 
 class Field:
@@ -18,6 +19,12 @@ class Field:
             return False
         self.ships.remove(s)
         return True
+
+    def launch(self, i: int, j: int) -> bool:
+        for ship in self.ships:
+            if ship.contains(Point(i, j)):
+                return True
+        return False
 
     def add_coordinates(self, window, max_width, max_height):
         for j in range(max_height // 4 - 5, max_height // 4 + 5):
