@@ -1,5 +1,5 @@
 import time
-from typing import Dict
+from typing import Dict, Tuple, Any
 
 from field import Field
 from ship import Ship
@@ -17,6 +17,7 @@ from player import Player
 # создания точки со стейтом, класс игры как синглтон
 # для сохранения данных использовать историю, а ввод комманд обрабатывать шаблоном "комманда"
 # Видимость полей контролируется с помощью прокси
+# Можно использовать декоратор для добавления поля убил/попал в саму точку
 
 
 import curses
@@ -25,7 +26,10 @@ import signal
 
 
 def validate_command(cmd: str) -> bool:
-    return isinstance(cmd, str) and len(cmd) == 2 and ord('a') <= ord(cmd[0].lower()) <= ord('j') and cmd[1].isnumeric()
+    return isinstance(cmd, str) and \
+           len(cmd) == 2 and \
+           ord('a') <= ord(cmd[0].lower()) <= ord('j') and \
+           cmd[1].isnumeric()
 
 
 def dims_for_game(max_height: int, max_width: int) -> Dict[str, Dict[str, int]]:
@@ -58,11 +62,10 @@ def dims_for_game(max_height: int, max_width: int) -> Dict[str, Dict[str, int]]:
                 sumheight += dim_val
 
     dims["history"]["height"] = max_height - sumheight
-
     return dims
 
 
-def get_title_panel(dims):
+def get_title_panel(dims: Dict[str, Dict[str, int]]) -> Tuple[Any, Any]:
     title_window = curses.newwin(
         dims["title"]["height"],
         dims["title"]["width"],
@@ -74,7 +77,7 @@ def get_title_panel(dims):
     return title_window, title_panel
 
 
-def get_subtitle_panels(dims):
+def get_subtitle_panels(dims: Dict[str, Dict[str, int]]) -> Tuple[Any, Any]:
     subtitle1_window = curses.newwin(
         dims["subtitle"]["height"],
         dims["subtitle"]["width"],
@@ -94,7 +97,7 @@ def get_subtitle_panels(dims):
     return subtitle1_panel, subtitle2_panel
 
 
-def get_player_panels(dims, max_height, max_width):
+def get_player_panels(dims: Dict[str, Dict[str, int]], max_height: int, max_width: int) -> Tuple[Any, Any, Any, Any]:
     p1_window = curses.newwin(
         dims["player"]["height"],
         dims["player"]["width"],
@@ -118,7 +121,7 @@ def get_player_panels(dims, max_height, max_width):
     return p1_window, p1_panel, p2_window, p2_panel
 
 
-def init_player_window(window, max_height: int, max_width: int):
+def init_player_window(window: Any, max_height: int, max_width: int):
     for i in range(max_width // 4 - 5, max_width // 4 + 5):
         for j in range(max_height // 4 - 5, max_height // 4 + 5):
             window.addstr(j, i, "-")
@@ -130,7 +133,7 @@ def init_player_window(window, max_height: int, max_width: int):
         window.addstr(max_height // 4 - 6, i, str(i - max_width // 4 + 5))
 
 
-def get_history_panel(dims):
+def get_history_panel(dims: Dict[str, Dict[str, int]]) -> Tuple[Any, Any]:
     history_pad = curses.newpad(
         dims["history"]["height"],
         dims["history"]["width"]
@@ -146,10 +149,10 @@ def get_history_panel(dims):
     history_panel = curses.panel.new_panel(history_window)
 
     history_window.addstr("History:\n")
-    return (history_window, history_panel)
+    return history_window, history_panel
 
 
-def get_command_panel(dims):
+def get_command_panel(dims: Dict[str, Dict[str, int]]) -> Tuple[Any, Any]:
     cmd_window = curses.newwin(
         dims["command"]["height"],
         dims["command"]["width"],
@@ -161,11 +164,23 @@ def get_command_panel(dims):
     cmd_panel = curses.panel.new_panel(cmd_window)
 
     cmd_window.addstr(1, 1, "Player 1 turn:")
-    return (cmd_window, cmd_panel)
+    return cmd_window, cmd_panel
 
 
-def game_loop(dims, command_window, history_window, player1_window, player2_window, p1_field, p2_field, max_width,
-              max_height):
+def game_loop(
+        dims: Dict[str, Dict[str, int]],
+        title_window: Any,
+        command_window: Any,
+        history_window: Any,
+        player1_window: Any,
+        player2_window: Any,
+        p1_field: Field,
+        p2_field: Field,
+        max_width: int,
+        max_height: int
+) -> Tuple[int, int]:
+    p1_score = 0
+    p2_score = 0
     player1_turn = True
     while True:
         command_window.move(2, 1)
@@ -193,27 +208,34 @@ def game_loop(dims, command_window, history_window, player1_window, player2_wind
             player_field = p2_field
             enemy_field = p1_field
 
-        # player_field.put_ships(player_window)
-        # player_field.add_coordinates(player_window, max_width, max_height)
-        # player_window.refresh()
-        #
-        # enemy_field.put_empty(enemy_window, max_width, max_height)
-        # enemy_field.add_coordinates(enemy_window, max_width, max_height)
-        # enemy_window.refresh()
+        player_field.put_ships(player_window)
+        player_field.add_coordinates(player_window, max_width, max_height)
+
+        enemy_field.put_empty(enemy_window, max_width, max_height)
+        enemy_field.add_coordinates(enemy_window, max_width, max_height)
 
         command = binput.decode("utf-8")
         strike_y = ord(command[0].lower()) - ord('a') + dims["player"]["height"] // 2 - 5
         strike_x = int(command[1]) + dims["player"]["width"] // 2 - 5
         # TODO Check Field coords!
         gotcha = enemy_field.launch(strike_x, strike_y)
+        title_window.addstr(0, 0, enemy_field.kill_points_str())
+        enemy_field.put_kill_points(enemy_window)
+        enemy_field.put_miss_points(enemy_window)
 
-        enemy_window.addstr(strike_y, strike_x, "K" if gotcha else "M")
-
+        # enemy_window.addstr(strike_y, strike_x, "K" if gotcha else "M")
+        if gotcha:
+            if player1_turn:
+                p1_score += 1
+            else:
+                p2_score += 1
         curses.panel.update_panels()
         curses.doupdate()
         player1_turn = not player1_turn
         command_window.clrtoeol()
         command_window.addstr(1, 1, "Player " + ("1" if player1_turn else "2") + " turn:")
+
+    return p1_score, p2_score
 
 
 def belongs_to_player(player_num: int, x: int, y: int) -> bool:
@@ -222,7 +244,13 @@ def belongs_to_player(player_num: int, x: int, y: int) -> bool:
     return True
 
 
-def setup_loop(screen, max_y, max_x, min_y, min_x):
+def setup_loop(
+        screen: Any,
+        max_y: int,
+        max_x: int,
+        min_y: int,
+        min_x: int
+) -> Field:
     ship_size = 1
     i = 0
     f = Field(10, 10)
@@ -270,10 +298,6 @@ def setup_loop(screen, max_y, max_x, min_y, min_x):
     return f
 
 
-def check_ship(length: int) -> bool:
-    return False
-
-
 def main(screen):
     max_height, max_width = screen.getmaxyx()
 
@@ -309,7 +333,9 @@ def main(screen):
     # player1_window.refresh()
     p1_field.put_empty(player1_window, max_width, max_height)
     p1_field.add_coordinates(player1_window, max_width, max_height)
-    player1_window.refresh()
+
+    curses.panel.update_panels()
+    curses.doupdate()
 
     p2_field = setup_loop(
         screen,
@@ -321,7 +347,8 @@ def main(screen):
 
     p2_field.put_empty(player2_window, max_width, max_height)
     p2_field.add_coordinates(player2_window, max_width, max_height)
-    player2_window.refresh()
+    curses.panel.update_panels()
+    curses.doupdate()
 
     curses.mousemask(False)
 
@@ -339,8 +366,32 @@ def main(screen):
     curses.echo()
     curses.curs_set(True)
 
-    game_loop(dims, cmd_window, history_window, player1_window, player2_window, p1_field, p2_field, max_width,
-              max_height)
+    p1_score, p2_score = game_loop(
+        dims,
+        title_window,
+        cmd_window,
+        history_window,
+        player1_window,
+        player2_window,
+        p1_field,
+        p2_field,
+        max_width,
+        max_height
+    )
+
+    screen.clear()
+    screen.refresh()
+    curses.curs_set(False)
+    if p1_score == p2_score:
+        result = "Draw!"
+    elif p1_score > p2_score:
+        result = "Player 1 wins!"
+    else:
+        result = "Player 2 wins!"
+    screen.addstr(0, 0, result)
+    screen.addstr(1, 0, "P1 Score: " + str(p1_score))
+    screen.addstr(2, 0, "P2 Score: " + str(p2_score))
+    screen.getch()
 
 
 try:
