@@ -208,11 +208,10 @@ def game_loop(
             player_field = p2_field
             enemy_field = p1_field
 
+        # p1_field.put_ships(player1_window)
         player_field.put_ships(player_window)
-        player_field.add_coordinates(player_window, max_width, max_height)
 
         enemy_field.put_empty(enemy_window, max_width, max_height)
-        enemy_field.add_coordinates(enemy_window, max_width, max_height)
 
         command = binput.decode("utf-8")
         strike_y = ord(command[0].lower()) - ord('a') + dims["player"]["height"] // 2 - 5
@@ -236,12 +235,6 @@ def game_loop(
         command_window.addstr(1, 1, "Player " + ("1" if player1_turn else "2") + " turn:")
 
     return p1_score, p2_score
-
-
-def belongs_to_player(player_num: int, x: int, y: int) -> bool:
-    if player_num == 1:
-        pass
-    return True
 
 
 def setup_loop(
@@ -339,10 +332,10 @@ def main(screen):
 
     p2_field = setup_loop(
         screen,
-        dims["player"]["height"] // 2 + 6,
-        dims["player"]["width"] // 2 * 3 + 5,
-        dims["player"]["height"] // 2 - 3,
-        dims["player"]["width"] // 2 * 3 - 4
+        round(dims["player"]["height"] / 2) + 5,
+        round(dims["player"]["width"] / 2 * 3) + 5,
+        round(dims["player"]["height"] / 2) - 5,
+        round(dims["player"]["width"] / 2 * 3) - 5
     )
 
     p2_field.put_empty(player2_window, max_width, max_height)
