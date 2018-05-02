@@ -68,9 +68,7 @@ class Player:
                             ship_pts.append(Point(int(mx - f_x), int(my - f_y)))
                             break
 
-    def launch(self, point: Point, player) -> bool:
-        for ship in player.field.ships:
-            if ship.contains(point):
-                print("Gotcha")
-                return True
-        return False
+    def launch(self, point: Point, player):
+        gotcha = player.field.launch(point)
+        if gotcha:
+            self.score += 1

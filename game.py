@@ -3,6 +3,7 @@ import curses.panel
 import time
 from typing import Any, Dict, Tuple
 
+from adapted_field import AdaptedField
 from command import Command
 from dimensions import Dimensions
 from player import Player
@@ -92,9 +93,9 @@ class Game:
             player = players[turn]
             enemy = players[0 if turn == 1 else 1]
 
-            enemy.field.erase(enemy.window.window, max_width, max_height)
-            player.field.erase(player.window.window, max_width, max_height)
-            player.field.put_ships(player.window.window, max_width, max_height)
+            AdaptedField(enemy.field).erase(enemy.window.window, max_width, max_height)
+            AdaptedField(player.field).erase(player.window.window, max_width, max_height)
+            # AdaptedField(player.field).put_ships(player.window.window, max_width, max_height)
 
             cmd.window.move(2, 1)
             binput = cmd.window.getstr()
@@ -107,16 +108,8 @@ class Game:
             cmd.window.move(2, 1)
 
             history.window.addstr("P" + str(turn + 1) + ": " + binput.decode("utf-8") + "\n")
-
-            # TODO Check Field coords!
-            gotcha = enemy.field.launch(Command.point(binput))
-            enemy.field.put_kill_points(enemy.window.window, dims["player"]["width"],
-                                        dims["player"]["height"])
-            enemy.field.put_miss_points(enemy.window.window, dims["player"]["width"],
-                                        dims["player"]["height"])
-
-            if gotcha:
-                players[turn].score += 1
+            player.launch(Command.point(binput), enemy)
+            AdaptedField(enemy.field).put_points(enemy.window.window, dims["player"]["width"], dims["player"]["height"])
 
             if players[0].score == 15 or players[1].score == 15:
                 break
