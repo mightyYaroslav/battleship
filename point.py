@@ -6,6 +6,9 @@ class Point:
         self.x = x
         self.y = y
 
+    def distance(self, p):
+        return math.sqrt((self.x - p.x) ** 2 + (self.y - p.y) ** 2)
+
     def __str__(self):
         return "x: " + str(self.x) + " y: " + str(self.y)
 
@@ -39,5 +42,5 @@ class Point:
             return self.x != other.x and self.y != other.y
         return NotImplemented
 
-    def distance(self, p):
-        return math.sqrt((self.x - p.x) ** 2 + (self.y - p.y) ** 2)
+    def __hash__(self):
+        return hash(self.__repr__())

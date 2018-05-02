@@ -11,17 +11,17 @@ class Field:
         self.cols = cols
         self.symbol = symbol
         self.ships = []
-        self._kill_points = []
-        self._miss_points = []
+        self._kill_points = set()
+        self._miss_points = set()
 
     def add_ship(self, s: Ship):
         self.ships.append(s)
 
     def miss_points_str(self) -> str:
-        return reduce(lambda a, x: a + str(x) + " ", self._miss_points, "")
+        return " ".join(self._miss_points)
 
     def kill_points_str(self) -> str:
-        return reduce(lambda a, x: a + str(x) + " ", self._kill_points, "")
+        return " ".join(self._kill_points)
 
     def remove_ship(self, s: Ship) -> bool:
         if s not in self.ships:
@@ -29,39 +29,41 @@ class Field:
         self.ships.remove(s)
         return True
 
-    def launch(self, i: int, j: int) -> bool:
+    def launch(self, p: Point) -> bool:
+        if p in self._kill_points:
+            return False
         for ship in self.ships:
-            if ship.contains(Point(i, j)):
-                self._kill_points.append(Point(i, j))
+            if p in ship:
+                self._kill_points.add(p)
                 return True
-        self._miss_points.append(Point(i, j))
+        self._miss_points.add(p)
         return False
 
     def add_coordinates(self, window: Any, max_width: int, max_height: int):
-        for j in range(max_height // 4 - 5, max_height // 4 + 5):
-            window.addstr(j, max_width // 4 - 6, chr(ord('A') + j - max_height // 4 + 5))
+        for j in range(round(max_height / 4) - 5, round(max_height / 4) + 5):
+            window.addstr(j, round(max_width / 4) - 6, chr(ord('A') + j - round(max_height / 4) + 5))
 
-        for i in range(max_width // 4 - 5, max_width // 4 + 5):
-            window.addstr(max_height // 4 - 6, i, str(i - max_width // 4 + 5))
+        for i in range(round(max_width / 4) - 5, round(max_width / 4) + 5):
+            window.addstr(round(max_height / 4) - 6, i, str(i - round(max_width / 4) + 5))
 
-    def put_empty(self, window: Any, max_width: int, max_height: int):
-        for i in range(max_width // 4 - 5, max_width // 4 + 5):
-            for j in range(max_height // 4 - 5, max_height // 4 + 5):
+    def erase(self, window: Any, max_width: int, max_height: int):
+        for i in range(round(max_width / 4) - 5, round(max_width / 4) + 5):
+            for j in range(round(max_height / 4) - 5, round(max_height / 4) + 5):
                 window.addstr(j, i, "-")
 
-    def put_kill_points(self, window: Any):
+    def put_kill_points(self, window: Any, max_width: int, max_height: int):
         for p in self._kill_points:
-            window.addstr(p.y, p.x, "K")
+            window.addstr(round(max_height / 2) - 5 + p.y, round(max_width / 2) - 5 + p.x, "K")
 
-    def put_miss_points(self, window: Any):
+    def put_miss_points(self, window: Any, max_width: int, max_height: int):
         for p in self._miss_points:
-            window.addstr(p.y, p.x, "M")
+            window.addstr(round(max_height / 2) - 5 + p.y, round(max_width / 2) - 5 + p.x, "M")
 
-    def put_ships(self, window: Any):
+    def put_ships(self, window: Any, max_width: int, max_height: int):
         for ship in self.ships:
             if ship.start.x == ship.end.x:
-                for j in range(ship.start.y, ship.end.y):
-                    window.addstr(j, ship.start.x, ship.symbol)
+                for j in range(ship.start.y, ship.end.y + 1):
+                    window.addstr(round(max_height / 4) - 5 + j, round(max_width / 4) - 5 + ship.start.x, ship.symbol)
             else:
-                for i in range(ship.start.x, ship.end.x):
-                    window.addstr(ship.start.y, i, ship.symbol)
+                for i in range(ship.start.x, ship.end.x + 1):
+                    window.addstr(round(max_height / 4) - 5 + ship.start.y, round(max_width / 4) - 5 + i, ship.symbol)

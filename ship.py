@@ -7,8 +7,10 @@ class Ship:
         self.end = end if start <= end else start
         self.symbol = symbol
 
-    def contains(self, point: Point) -> bool:
-        return self.start <= point <= self.end
+    def __contains__(self, o) -> bool:
+        if not isinstance(o, Point):
+            return False
+        return self.start <= o <= self.end
 
     def __str__(self):
         return "start: " + str(self.start) + " end: " + str(self.end)
