@@ -4,11 +4,11 @@ import time
 from typing import Any, Dict, Tuple
 
 from adapted_field import AdaptedField
-from command import Command
+from command import Command, ValidatedCommand
 from dimensions import Dimensions
 from player import Player
-from window import TitleWindow, Subtitle1Window, Subtitle2Window, Player1Window, Player2Window, HistoryWindow, \
-    CommandWindow, Window
+from window import Window, TitleBuilder, Subtitle1Builder, Subtitle2Builder, HistoryBuilder, CommandBuilder, \
+    Player1Builder, Player2Builder
 
 
 class Game:
@@ -17,7 +17,9 @@ class Game:
             self.screen = screen
             self.max_height, self.max_width = screen.getmaxyx()
             self.dims = Dimensions.for_game(self.max_height, self.max_width)
-            self.players = (Player("P1", Player1Window(self.dims)), Player("P2", Player2Window(self.dims)))
+
+            self.players = (Player("P1", Player1Builder(Window(), self.dims).window),
+                            Player("P2", Player2Builder(Window(), self.dims).window))
             self.turn = 0
 
     instance = None
@@ -30,12 +32,12 @@ class Game:
         players, screen, dims = self.instance.players, self.instance.screen, self.instance.dims
         max_width, max_height = self.instance.max_width, self.instance.max_height
 
-        title = TitleWindow(dims)
-        subtitle1, subtitle2 = Subtitle1Window(self.instance.dims), Subtitle2Window(self.instance.dims)
+        title = TitleBuilder(Window(), dims).window
+        subtitle1, subtitle2 = Subtitle1Builder(Window(), dims).window, Subtitle2Builder(Window(), dims).window
 
         for player in players:
-            player.field.erase(player.window.window, max_width, max_height)
-            player.field.add_coordinates(player.window.window, max_width, max_height)
+            AdaptedField(player.field, max_width, max_height).erase(player.window.window)
+            AdaptedField(player.field, max_width, max_height).add_coordinates(player.window.window)
 
         curses.mousemask(True)
         curses.curs_set(False)
@@ -52,8 +54,8 @@ class Game:
             round(dims["player"]["width"] / 2) - 5
         )
 
-        players[0].field.erase(players[0].window.window, max_width, max_height)
-        players[0].field.add_coordinates(players[0].window.window, max_width, max_height)
+        AdaptedField(players[0].field, max_width, max_height).erase(players[0].window.window)
+        AdaptedField(players[0].field, max_width, max_height).add_coordinates(players[0].window.window)
 
         curses.panel.update_panels()
         curses.doupdate()
@@ -66,8 +68,8 @@ class Game:
             round(dims["player"]["width"] / 2 * 3) - 5
         )
 
-        players[1].field.erase(players[1].window.window, max_width, max_height)
-        players[1].field.add_coordinates(players[1].window.window, max_width, max_height)
+        AdaptedField(players[1].field, max_width, max_height).erase(players[1].window.window)
+        AdaptedField(players[1].field, max_width, max_height).add_coordinates(players[1].window.window)
         curses.panel.update_panels()
         curses.doupdate()
 
@@ -93,23 +95,22 @@ class Game:
             player = players[turn]
             enemy = players[0 if turn == 1 else 1]
 
-            AdaptedField(enemy.field).erase(enemy.window.window, max_width, max_height)
-            AdaptedField(player.field).erase(player.window.window, max_width, max_height)
-            # AdaptedField(player.field).put_ships(player.window.window, max_width, max_height)
+            AdaptedField(enemy.field, max_width, max_height).erase(enemy.window.window)
+            AdaptedField(player.field, max_width, max_height).erase(player.window.window)
 
             cmd.window.move(2, 1)
             binput = cmd.window.getstr()
 
             if len(binput) == 0:
                 break
-            if not Command.validate(binput.decode("utf-8")):
+            if not ValidatedCommand(Command(binput)).validate():
                 self.command_warn(cmd)
                 continue
             cmd.window.move(2, 1)
 
             history.window.addstr("P" + str(turn + 1) + ": " + binput.decode("utf-8") + "\n")
-            player.launch(Command.point(binput), enemy)
-            AdaptedField(enemy.field).put_points(enemy.window.window, dims["player"]["width"], dims["player"]["height"])
+            player.launch(ValidatedCommand(Command(binput)).point(), enemy)
+            AdaptedField(enemy.field, dims["player"]["width"], dims["player"]["height"]).put_points(enemy.window.window)
 
             if players[0].score == 15 or players[1].score == 15:
                 break
@@ -122,8 +123,8 @@ class Game:
 
     def play(self):
         dims = self.instance.dims
-        history = HistoryWindow(dims)
-        cmd = CommandWindow(dims)
+        history = HistoryBuilder(Window(), dims).window
+        cmd = CommandBuilder(Window(), dims).window
 
         curses.panel.update_panels()
         curses.doupdate()

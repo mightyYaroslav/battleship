@@ -31,7 +31,6 @@ class Player:
         f_y = round((max_y + min_y) / 2) - 5
 
         while True:
-
             if len(ship_pts) == ship_size:
                 xs = [pt.x for pt in ship_pts]
                 ys = [pt.y for pt in ship_pts]

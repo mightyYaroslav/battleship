@@ -37,7 +37,7 @@ class Point:
             return self.x == other.x and self.y == other.y
         return NotImplemented
 
-    def __nq__(self, other):
+    def __ne__(self, other):
         if isinstance(other, Point):
             return self.x != other.x and self.y != other.y
         return NotImplemented
