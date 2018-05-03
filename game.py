@@ -7,22 +7,24 @@ from adapted_field import AdaptedField
 from command import Command, ValidatedCommand
 from dimensions import Dimensions
 from player import Player
-from window import Window, TitleBuilder, Subtitle1Builder, Subtitle2Builder, HistoryBuilder, CommandBuilder, \
-    Player1Builder, Player2Builder
+from window import Window
+from window_builder import TitleBuilder, Subtitle1Builder, Subtitle2Builder, HistoryBuilder, CommandBuilder, \
+    Player1Builder, Player2Builder, WindowManager
 
 
 class Game:
+    instance = None
+
     class __Game:
         def __init__(self, screen: Any):
             self.screen = screen
+            self.title = None
             self.max_height, self.max_width = screen.getmaxyx()
             self.dims = Dimensions.for_game(self.max_height, self.max_width)
 
-            self.players = (Player("P1", Player1Builder(Window(), self.dims).window),
-                            Player("P2", Player2Builder(Window(), self.dims).window))
+            self.players = (Player("P1", WindowManager(Player1Builder(self.dims)).build()),
+                            Player("P2", WindowManager(Player2Builder(self.dims)).build()))
             self.turn = 0
-
-    instance = None
 
     def __init__(self, screen: Any):
         if Game.instance is None:
@@ -32,8 +34,9 @@ class Game:
         players, screen, dims = self.instance.players, self.instance.screen, self.instance.dims
         max_width, max_height = self.instance.max_width, self.instance.max_height
 
-        title = TitleBuilder(Window(), dims).window
-        subtitle1, subtitle2 = Subtitle1Builder(Window(), dims).window, Subtitle2Builder(Window(), dims).window
+        title = WindowManager(TitleBuilder(dims)).build()
+        subtitle1, subtitle2 = WindowManager(Subtitle1Builder(dims)).build(), \
+                               WindowManager(Subtitle2Builder(dims)).build()
 
         for player in players:
             AdaptedField(player.field, max_width, max_height).erase(player.window.window)
@@ -123,8 +126,8 @@ class Game:
 
     def play(self):
         dims = self.instance.dims
-        history = HistoryBuilder(Window(), dims).window
-        cmd = CommandBuilder(Window(), dims).window
+        history = WindowManager(HistoryBuilder(dims)).build()
+        cmd = WindowManager(CommandBuilder(dims)).build()
 
         curses.panel.update_panels()
         curses.doupdate()
