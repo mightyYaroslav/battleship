@@ -145,7 +145,8 @@ class HistoryBuilder(WindowBuilder):
         self.window.panel = curses.panel.new_panel(self.window.window)
 
     def set_scrollable(self):
-        self.window.scrollable = False
+        self.window.scrollable = True
+        self.window.window.scrollok(True)
 
     def set_boxed(self):
         self.window.boxed = False

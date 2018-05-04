@@ -1,8 +1,5 @@
 import curses
 import curses.panel
-from abc import ABC, abstractmethod
-from enum import Enum
-from typing import Dict
 
 
 class Window:
@@ -25,6 +22,7 @@ class Window:
         self.scrollable = scrollable
         self.boxed = boxed
         self.title = title
+        self.title_flags = title_flags
 
         self.window = curses.newwin(height, width, y, x)
         self.window.scrollok(scrollable)

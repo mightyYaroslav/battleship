@@ -3,12 +3,7 @@ from typing import Any
 
 from ship import Ship
 from point import Point
-from symbol_point import SymbolPoint
-
-
-class PointSymbol(Enum):
-    KILL = "K"
-    MISS = "M"
+from symbol_point import SymbolPoint, PointSymbol
 
 
 class Field:
@@ -30,13 +25,17 @@ class Field:
 
     def launch(self, p: Point) -> bool:
         for pt in self._points:
-            if p == pt and pt.symbol == PointSymbol.KILL.value:
+            if p == pt and pt.state.char == PointSymbol.KILL.value:
                 return False
         for ship in self.ships:
             if p in ship:
-                self._points.add(SymbolPoint(p, PointSymbol.KILL.value))
+                sym_p = SymbolPoint(p)
+                sym_p.kill()
+                self._points.add(sym_p)
                 return True
-        self._points.add(SymbolPoint(p, PointSymbol.MISS.value))
+        sym_p = SymbolPoint(p)
+        sym_p.miss()
+        self._points.add(sym_p)
         return False
 
     def add_coordinates(self, window: Any):
@@ -53,13 +52,10 @@ class Field:
 
     def put_points(self, window: Any):
         for p in self._points:
-            window.addstr(p.y, p.x, p.symbol)
+            window.addstr(p.y, p.x, p.state.char)
 
     def put_ships(self, window: Any):
         for ship in self.ships:
-            if ship.start.x == ship.end.x:
+            for i in range(ship.start.x, ship.end.x + 1):
                 for j in range(ship.start.y, ship.end.y + 1):
-                    window.addstr(j, ship.start.x, ship.symbol)
-            else:
-                for i in range(ship.start.x, ship.end.x + 1):
-                    window.addstr(ship.start.y, i, ship.symbol)
+                    window.addstr(j, i, ship.symbol)

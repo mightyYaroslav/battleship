@@ -3,7 +3,7 @@ from typing import Any
 
 from point import Point
 from ship import Ship
-from symbol_point import SymbolPoint
+from symbol_point import SymbolPoint, MissedState
 
 
 class AdaptedField(Field):
@@ -12,32 +12,16 @@ class AdaptedField(Field):
         self.field = field
         self.max_width = max_width
         self.max_height = max_height
-
-    def add_coordinates(self, window: Any):
-        for j in range(round(self.max_height / 4) - 5, round(self.max_height / 4) + 5):
-            window.addstr(j, round(self.max_width / 4) - 6, chr(ord('A') + j - round(self.max_height / 4) + 5))
-
-        for i in range(round(self.max_width / 4) - 5, round(self.max_width / 4) + 5):
-            window.addstr(round(self.max_height / 4) - 6, i, str(i - round(self.max_width / 4) + 5))
-
-    def erase(self, window: Any):
-        for i in range(round(self.max_width / 4) - 5, round(self.max_width / 4) + 5):
-            for j in range(round(self.max_height / 4) - 5, round(self.max_height / 4) + 5):
-                window.addstr(j, i, "-")
-
-    def put_points(self, window: Any):
         for p in self.field._points:
             self._points.add(
                 SymbolPoint(
                     Point(
                         x=p.x + round(self.max_width / 2) - 5,
                         y=p.y + round(self.max_height / 2) - 5),
-                    p.symbol
+                    p.state
                 )
             )
-        super().put_points(window)
 
-    def put_ships(self, window: Any):
         for s in self.field.ships:
             new_ship = Ship(
                 start=Point(
@@ -50,4 +34,15 @@ class AdaptedField(Field):
                 )
             )
             self.ships.append(new_ship)
-        super().put_ships(window)
+
+    def add_coordinates(self, window: Any):
+        for j in range(round(self.max_height / 4) - 5, round(self.max_height / 4) + 5):
+            window.addstr(j, round(self.max_width / 4) - 6, chr(ord('A') + j - round(self.max_height / 4) + 5))
+
+        for i in range(round(self.max_width / 4) - 5, round(self.max_width / 4) + 5):
+            window.addstr(round(self.max_height / 4) - 6, i, str(i - round(self.max_width / 4) + 5))
+
+    def erase(self, window: Any):
+        for i in range(round(self.max_width / 4) - 5, round(self.max_width / 4) + 5):
+            for j in range(round(self.max_height / 4) - 5, round(self.max_height / 4) + 5):
+                window.addstr(j, i, "-")

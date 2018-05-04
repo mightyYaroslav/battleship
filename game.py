@@ -78,7 +78,8 @@ class Game:
 
         curses.mousemask(False)
 
-    def command_warn(self, cmd: Window):
+    @staticmethod
+    def warn(cmd: Window):
         cmd.window.move(2, 1)
         cmd.window.addstr("Input is incorrect!")
         cmd.window.refresh()
@@ -96,7 +97,7 @@ class Game:
 
         while True:
             player = players[turn]
-            enemy = players[0 if turn == 1 else 1]
+            enemy = players[int(not turn)]
 
             AdaptedField(enemy.field, max_width, max_height).erase(enemy.window.window)
             AdaptedField(player.field, max_width, max_height).erase(player.window.window)
@@ -107,7 +108,7 @@ class Game:
             if len(binput) == 0:
                 break
             if not ValidatedCommand(Command(binput)).validate():
-                self.command_warn(cmd)
+                self.warn(cmd)
                 continue
             cmd.window.move(2, 1)
 
@@ -120,7 +121,7 @@ class Game:
 
             curses.panel.update_panels()
             curses.doupdate()
-            turn = 1 if turn == 0 else 0
+            turn = int(not turn)
             cmd.window.clrtoeol()
             cmd.window.addstr(1, 1, "Player " + str(turn + 1) + " turn:")
 
@@ -152,9 +153,10 @@ class Game:
         screen.addstr(0, 0, result)
         screen.addstr(1, 0, "P1 Score: " + str(players[0].score) + "\n")
         screen.addstr(2, 0, "P2 Score: " + str(players[1].score) + "\n")
-        screen.addstr("\n".join([str(sh) for sh in players[0].field.ships]) + "\n\n\n")
-        screen.addstr("\n".join([str(sh) for sh in players[1].field.ships]) + "\n")
-        screen.addstr("Screen bounds: " + "\n")
-        screen.addstr("Width: " + str(max_width) + "\n")
-        screen.addstr("Height: " + str(max_height) + "\n")
+        screen.addstr(3, 0, "Press any key to exit...")
+        # screen.addstr("\n".join([str(sh) for sh in players[0].field.ships]) + "\n\n\n")
+        # screen.addstr("\n".join([str(sh) for sh in players[1].field.ships]) + "\n")
+        # screen.addstr("Screen bounds: " + "\n")
+        # screen.addstr("Width: " + str(max_width) + "\n")
+        # screen.addstr("Height: " + str(max_height) + "\n")
         screen.getch()
