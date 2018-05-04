@@ -32,13 +32,10 @@ class SymbolPoint(Point):
     _missed_state = MissedState()
     _killed_state = KilledState()
 
-    def __init__(self, p: Point, state: PointState = None):
+    def __init__(self, p: Point, state: PointState = _missed_state):
         super().__init__(p.x, p.y)
         self.p = p
-        if state is None:
-            self.state = SymbolPoint._missed_state
-        else:
-            self.state = state
+        self.state = state
 
     def miss(self):
         self.state = SymbolPoint._missed_state

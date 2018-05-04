@@ -1,9 +1,8 @@
-from enum import Enum
 from typing import Any
 
 from ship import Ship
 from point import Point
-from symbol_point import SymbolPoint, PointSymbol
+from symbol_point import SymbolPoint, KilledState
 
 
 class Field:
@@ -25,7 +24,7 @@ class Field:
 
     def launch(self, p: Point) -> bool:
         for pt in self._points:
-            if p == pt and pt.state.char == PointSymbol.KILL.value:
+            if p == pt and pt.state == KilledState():
                 return False
         for ship in self.ships:
             if p in ship:
