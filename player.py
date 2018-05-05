@@ -22,7 +22,7 @@ class Player:
             min_y: int,
             min_x: int
     ):
-        ship_size = 1
+        ship_size = 5
         i = 0
         ship_pts = []
         vert = True
@@ -53,19 +53,20 @@ class Player:
                         screen.addstr(my, mx, "x")
                         ship_pts.append(Point(int(mx - f_x), int(my - f_y)))
 
-                    if len(ship_pts) == 1 and \
+                    elif len(ship_pts) == 1 and \
                             ((abs(ship_pts[0].x + f_x - mx) == 1 and ship_pts[0].y + f_y == my) or
                              (abs(ship_pts[0].y + f_y - my) == 1 and ship_pts[0].x + f_x == mx)):
                         vert = (abs(ship_pts[0].x + f_x - mx) == 1 and ship_pts[0].y + f_y == my)
                         screen.addstr(my, mx, "x")
                         ship_pts.append(Point(int(mx - f_x), int(my - f_y)))
 
-                    for pt in ship_pts:
-                        if (vert and (abs(pt.x + f_x - mx) == 1 and pt.y + f_y == my)) or \
-                                (not vert and (abs(pt.y + f_y - my) == 1 and pt.x + f_x == mx)):
-                            screen.addstr(my, mx, "x")
-                            ship_pts.append(Point(int(mx - f_x), int(my - f_y)))
-                            break
+                    elif len(ship_pts) > 1:
+                        for pt in ship_pts:
+                            if (vert and (abs(pt.x + f_x - mx) == 1 and pt.y + f_y == my)) or \
+                                    (not vert and (abs(pt.y + f_y - my) == 1 and pt.x + f_x == mx)):
+                                screen.addstr(my, mx, "x")
+                                ship_pts.append(Point(int(mx - f_x), int(my - f_y)))
+                                break
 
     def launch(self, point: Point, player):
         gotcha = player.field.launch(point)

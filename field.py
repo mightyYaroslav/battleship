@@ -38,15 +38,15 @@ class Field:
         return False
 
     def add_coordinates(self, window: Any):
-        for j in range(10):
+        for j in range(self.cols):
             window.addstr(j, 4, chr(ord('A') + j + 3))
 
-        for i in range(10):
+        for i in range(self.rows):
             window.addstr(4, i, str(i + 3))
 
     def erase(self, window: Any):
-        for i in range(10):
-            for j in range(10):
+        for i in range(self.rows):
+            for j in range(self.cols):
                 window.addstr(j, i, "-")
 
     def put_points(self, window: Any):

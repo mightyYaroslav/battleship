@@ -1,7 +1,7 @@
 import curses
 import curses.panel
 import time
-from typing import Any, Dict, Tuple
+from typing import Any
 
 from adapted_field import AdaptedField
 from command import Command, ValidatedCommand
@@ -23,7 +23,7 @@ class Game:
             self.subtitle1 = None
             self.subtitle2 = None
             self.max_height, self.max_width = screen.getmaxyx()
-            self.dims = Dimensions.for_game(self.max_height, self.max_width)
+            self.dims = Dimensions(self.max_width, self.max_height).instance
             self.commands = Observable([])
 
             self.players = (Player("P1", WindowManager(Player1Builder(self.dims)).build()),
